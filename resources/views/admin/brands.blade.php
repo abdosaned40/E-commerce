@@ -64,7 +64,7 @@
                                         <a href="#" class="body-title-2">{{ $brand->name }}</a>
                                     </div>
                                 </td>
-                                <td>{{ $brand->slug }}</td> <!-- Corrected 'sulg' to 'slug' -->
+                                <td>{{ $brand->slug }}</td>
                                 <td><a href="#" target="_blank">0</a></td>
                                 <td>
                                     <div class="list-icon-function">
@@ -73,7 +73,7 @@
                                                 <i class="icon-edit-3"></i>
                                             </div>
                                         </a>
-                                        <form action="#" method="POST">
+                                        <form action="{{ route('admin.brand.delete', ['id'=>$brand->id]) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="item text-danger delete">
@@ -97,3 +97,25 @@
 </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        $(function(){
+            $(".delete").on('click',function(e){
+                e.preventDefault();
+                var selectedForm = $(this).closest('form');
+                swal({
+                    title: "Are you sure?",
+                    text: "You want to delete this record?",
+                    type: "warning",
+                    buttons: ["No!", "Yes!"],
+                    confirmButtonColor: '#dc3545'
+                }).then(function (result) {
+                    if (result) {
+                        selectedForm.submit();  
+                    }
+                });                             
+            });
+        });
+    </script>
+@endpush

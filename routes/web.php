@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\AdminController;
+use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-use App\Http\Middleware\AuthAdmin;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -41,4 +42,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function(){
     Route::get('/admin/brand/edit/{id}',[AdminController::class,'brand_edit'])->name('admin.brand.edit');
     Route::put('/admin/brand/update',[AdminController::class,'brand_update'])->name('admin.brand.update');
     Route::delete('/admin/brand/{id}/delete',[AdminController::class,'brand_delete'])->name('admin.brand.delete');
+    Route::get('/admin/categories',[CategoryController::class,'categories'])->name('admin.categories');
+    Route::get('/admin/category/add',[CategoryController::class,'category_add'])->name('admin.category.add');
+    Route::post('/admin/category/store',[CategoryController::class,'category_store'])->name('admin.category.store');
 });

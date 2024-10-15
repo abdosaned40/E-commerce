@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\File;
-use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
-use Intervention\Image\Drivers\Imagick\Driver;
 
 class AdminController extends Controller
 {
@@ -70,10 +69,8 @@ class AdminController extends Controller
         $brand->slug = $request->slug;
 
         if ($request->hasFile('image')) {
-            $imagePath = public_path('uploads/brands/' . $brand->image);
-
-            if (File::exists($imagePath)) {
-                File::delete($imagePath);
+            if ($brand->image && Storage::exists('public/brands/' . $brand->image)) {
+                Storage::delete('public/brands/' . $brand->image);
             }
 
             $image = $request->file('image');
@@ -90,30 +87,23 @@ class AdminController extends Controller
         return redirect()->route('admin.brands')->with('status', 'Record has been updated successfully!');
     }
 
-
-
     public function generateBrandThumbnailsImage($image, $imageName) {
-        $destinationPath = public_path('uploads/brands');
-
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0777, true);
-        }
-
         $img = Image::make($image->getRealPath());
-
         $img->resize(124, 124, function ($constraint) {
             $constraint->aspectRatio();
-        })->save($destinationPath . '/' . $imageName);
+        });
+
+        $img->stream(); 
+
+        Storage::put('public/brands/' . $imageName, $img);  
     }
 
-
-    public function brand_delete ($id)
-    {
+    public function brand_delete($id) {
         $brand = Brand::find($id);
-        if (File::exists(public_path('uploads/brands').'/'.$brand->image)) {
-            File::delete(public_path('uploads/brands').'/'.$brand->image);
+        if ($brand->image && Storage::exists('public/brands/' . $brand->image)) {
+            Storage::delete('public/brands/' . $brand->image);
         }
         $brand->delete();
-        return redirect()->route('admin.brands')->with('status','Record has been deleted successfully !');
+        return redirect()->route('admin.brands')->with('status', 'Record has been deleted successfully!');
     }
 }

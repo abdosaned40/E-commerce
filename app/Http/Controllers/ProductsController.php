@@ -42,16 +42,14 @@ class ProductsController extends Controller
         $product->quantity = $request->quantity;
         $current_timestamp = Carbon::now()->timestamp;
 
-        // معالجة الصورة الرئيسية
         if ($request->hasFile('image')) {
-            $this->deleteOldImage($product->image); // حذف الصورة القديمة إذا وجدت
+            $this->deleteOldImage($product->image); 
             $image = $request->file('image');
             $imageName = $current_timestamp . '.' . $image->extension();
-            $this->generateThumbnailImage($image, $imageName); // إنشاء مصغرات
+            $this->generateThumbnailImage($image, $imageName); 
             $product->image = $imageName;
         }
 
-        // معالجة معرض الصور
         $gallery_images = $this->processGalleryImages($request, $current_timestamp);
         $product->images = $gallery_images;
 
@@ -91,7 +89,7 @@ class ProductsController extends Controller
 
     public function product_edit($id)
     {
-        $product = Product::findOrFail($id); // استخدم findOrFail لتجنب الأخطاء في حالة عدم وجود المنتج
+        $product = Product::findOrFail($id); 
         $categories = Category::select('id', 'name')->orderBy('name')->get();
         $brands = Brand::select('id', 'name')->orderBy('name')->get();
 
@@ -100,7 +98,7 @@ class ProductsController extends Controller
 
     public function product_update(Request $request, $id)
     {
-        $product = Product::findOrFail($id); // استخدم findOrFail بدلاً من find فقط
+        $product = Product::findOrFail($id); 
         $request->validate([
             'name' => 'required',
             'slug' => 'required|unique:products,slug,' . $id,
@@ -129,7 +127,6 @@ class ProductsController extends Controller
         $product->quantity = $request->quantity;
         $current_timestamp = Carbon::now()->timestamp;
 
-        // تحديث الصورة الرئيسية إذا تم تحميل صورة جديدة
         if ($request->hasFile('image')) {
             $this->deleteOldImage($product->image);
 
@@ -187,5 +184,13 @@ class ProductsController extends Controller
         imagedestroy($thumbnail);
         imagedestroy($src_image);
     }
+
+    
+public function product_delete($id)
+{
+    $product = Product::find($id);        
+    $product->delete();
+    return redirect()->route('admin.products')->with('status','Record has been deleted successfully !');
+} 
     
 }

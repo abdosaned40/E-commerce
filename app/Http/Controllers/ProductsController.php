@@ -11,9 +11,15 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\File;
 
 class ProductsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function products()
     {
         $products = Product::orderBy('created_at', 'DESC')->paginate(10);
@@ -27,8 +33,24 @@ class ProductsController extends Controller
         return view('admin.product-add', compact('categories', 'brands'));
     }
 
-    public function product_store(ProductRequest $request)
+    public function product_store(Request $request)
     {
+        $request->validate([
+            'name'=>'required',
+            'slug'=>'required|unique:products,slug',
+            'category_id'=>'required',
+            'brand_id'=>'required',            
+            'short_description'=>'required',
+            'description'=>'required',
+            'regular_price'=>'required',
+            'sale_price'=>'required',
+            'SKU'=>'required',
+            'stock_status'=>'required',
+            'featured'=>'required',
+            'quantity'=>'required',
+            'image'=>'required|mimes:png,jpg,jpeg|max:2048'            
+        ]);
+    
         $product = new Product();
         $product->name = $request->name;
         $product->slug = Str::slug($request->name);
@@ -41,24 +63,62 @@ class ProductsController extends Controller
         $product->featured = $request->featured;
         $product->quantity = $request->quantity;
         $current_timestamp = Carbon::now()->timestamp;
-
-        if ($request->hasFile('image')) {
-            $this->deleteOldImage($product->image); 
+    
+        if($request->hasFile('image'))
+        {        
+            if (File::exists(public_path('uploads/products').'/'.$product->image)) {
+                File::delete(public_path('public/categories/').'/'.$product->image);
+            }
+            if (File::exists(public_path('app/public/categories/').'/'.$product->image)) {
+                File::delete(public_path('app/public/categories/').'/'.$product->image);
+            }            
+        
             $image = $request->file('image');
-            $imageName = $current_timestamp . '.' . $image->extension();
-            $this->generateThumbnailImage($image, $imageName); 
+            $imageName = $current_timestamp.'.'.$image->extension();
+    
+            $this->GenerateThumbnailImage($image,$imageName);            
             $product->image = $imageName;
         }
-
-        $gallery_images = $this->processGalleryImages($request, $current_timestamp);
+    
+        $gallery_arr = array();
+        $gallery_images = "";
+        $counter = 1;
+    
+        if($request->hasFile('images'))
+        {
+            $oldGImages = explode(",",$product->images);
+            foreach($oldGImages as $gimage)
+            {
+                if (File::exists(public_path('public/categories/').'/'.trim($gimage))) {
+                    File::delete(public_path('public/categories/').'/'.trim($gimage));
+                }
+    
+                if (File::exists(public_path('app/public/categories/').'/'.trim($gimage))) {
+                    File::delete(public_path('app/public/categories/').'/'.trim($gimage));
+                }
+            }
+            $allowedfileExtension=['jpg','png','jpeg'];
+            $files = $request->file('images');
+            foreach($files as $file){                
+                $gextension = $file->getClientOriginalExtension();                                
+                $check=in_array($gextension,$allowedfileExtension);            
+                if($check)
+                {
+                    $gfilename = $current_timestamp . "-" . $counter . "." . $gextension;   
+                    $this->GenerateThumbnailImage($file,$gfilename);                    
+                    array_push($gallery_arr,$gfilename);
+                    $counter = $counter + 1;
+                }
+            }
+            $gallery_images = implode(',', $gallery_arr);
+        }
         $product->images = $gallery_images;
-
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
         $product->save();
-
-        return redirect()->route('admin.products')->with('status', 'Record has been added successfully!');
+        return redirect()->route('admin.products')->with('status','Record has been added successfully !');
     }
+    
 
     private function deleteOldImage($image)
     {
@@ -141,7 +201,7 @@ class ProductsController extends Controller
 
         return redirect()->route('admin.products')->with('status', 'Record has been updated successfully!');
     }
-    private function generateCategoryThumbnailImage($image, $file_name)
+    private function GenerateThumbnailImage($image, $file_name)
     {
         $image_info = getimagesize($image);
         $image_type = $image_info[2];
@@ -168,7 +228,7 @@ class ProductsController extends Controller
     
         imagecopyresampled($thumbnail, $src_image, 0, 0, 0, 0, $thumbnail_width, $thumbnail_height, $src_width, $src_height);
     
-        $thumbnail_path = storage_path('app/public/categories/' . $file_name);
+        $thumbnail_path = storage_path('app/public/products/' . $file_name);
         switch ($image_type) {
             case IMAGETYPE_JPEG:
                 imagejpeg($thumbnail, $thumbnail_path);
@@ -186,11 +246,13 @@ class ProductsController extends Controller
     }
 
     
-public function product_delete($id)
-{
-    $product = Product::find($id);        
-    $product->delete();
-    return redirect()->route('admin.products')->with('status','Record has been deleted successfully !');
-} 
+    public function product_delete($id)
+    {
+        $product = Product::findOrFail($id);
+        $this->authorize('delete', $product);  // Check authorization
+    
+        $product->delete();
+        return redirect()->route('admin.products')->with('status', 'Record has been deleted successfully!');
+    }
     
 }

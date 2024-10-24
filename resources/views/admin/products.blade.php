@@ -65,7 +65,7 @@
                             <td>{{ $product->id }}</td>
                             <td class="pname">
                                 <div class="image">
-                                    <img src="{{ asset('storage/categories/' . $product->image) }}" alt="">
+                                    <img src="{{ asset('storage/products/' . $product->image) }}" alt="">
                                 </div>
                                 <div class="name">
                                     <a href="#" class="body-title-2">{{ $product->name }}</a>

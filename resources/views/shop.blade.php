@@ -447,7 +447,7 @@
                         </button>
                     </form>
                 @else
-                <form method="POST" action="{{route('wishlist.add')}}">
+                <form method="POST" action="#">
                     @csrf
                     <input type="hidden" name="id" value="{{$product->id}}" />
                     <input type="hidden" name="name" value="{{$product->name}}" />

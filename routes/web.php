@@ -38,7 +38,7 @@ Route::get('/shop/{product_slug}',[ShopController::class,'product_details'])->na
 
 Route::get('/cart',[CartController::class,'index'])->name('cart.index');
 
-Route::post('/cart/store', [CartController::class, 'addToCart'])->name('cart.store');
+Route::post('/cart/store', [CartController::class, 'addToCart'])->name('cart.add');
 
 
 

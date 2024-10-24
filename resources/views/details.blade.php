@@ -11,8 +11,8 @@
                         <div class="swiper-container">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide product-single__image-item">
-                                    <img loading="lazy" class="h-auto" src="{{asset('storage/products/')}}/{{$product->image}}" width="674" height="674" alt="" />
-                                    <a data-fancybox="gallery" href="{{asset('storage/products/')}}/{{$product->image}}" data-bs-toggle="tooltip" data-bs-placement="left" title="Zoom">
+                                    <img loading="lazy" class="h-auto" src="{{asset('storage/products')}}/{{$product->image}}" width="674" height="674" alt="" />
+                                    <a data-fancybox="gallery" href="{{asset('storage/products')}}/{{$product->image}}" data-bs-toggle="tooltip" data-bs-placement="left" title="Zoom">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <use href="#icon_zoom" />
                                         </svg>
@@ -21,8 +21,8 @@
 
                                 @foreach (explode(",",$product->images) as $gimg)
                                 <div class="swiper-slide product-single__image-item">
-                                    <img loading="lazy" class="h-auto" src="{{asset('storage/products/')}}/{{trim($gimg)}}" width="674" height="674" alt="" />
-                                    <a data-fancybox="gallery" href="{{asset('storage/products/')}}/{{trim($gimg)}}" data-bs-toggle="tooltip" data-bs-placement="left" title="Zoom">
+                                    <img loading="lazy" class="h-auto" src="{{asset('storage/products')}}/{{trim($gimg)}}" width="674" height="674" alt="" />
+                                    <a data-fancybox="gallery" href="{{asset('storage/products')}}/{{trim($gimg)}}" data-bs-toggle="tooltip" data-bs-placement="left" title="Zoom">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <use href="#icon_zoom" />
                                         </svg>
@@ -41,10 +41,10 @@
                     <div class="product-single__thumbnail">
                         <div class="swiper-container">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide product-single__image-item"><img loading="lazy" class="h-auto" src="{{asset('storage/products/')}}/{{$product->image}}" width="104" height="104" alt="" /></div>
+                                <div class="swiper-slide product-single__image-item"><img loading="lazy" class="h-auto" src="{{asset('uploads/products/thumbnails')}}/{{$product->image}}" width="104" height="104" alt="" /></div>
                                 @foreach (explode(",",$product->images) as $gimg)
                                     <div class="swiper-slide product-single__image-item">
-                                        <img loading="lazy" class="h-auto" src="{{asset('storage/products/')}}/{{trim($gimg)}}" width="104" height="104" alt="" />
+                                        <img loading="lazy" class="h-auto" src="{{asset('storage/products')}}/{{trim($gimg)}}" width="104" height="104" alt="" />
                                     </div>
                                 @endforeach                                
                             </div>
@@ -102,27 +102,24 @@
                 <div class="product-single__short-desc">
                     <p>{{$product->short_description}}</p>
                 </div>
-                 @if(Cart::instance("cart")->content()->search(function ($cartItem, $rowId) use ($product) {
-                   return $cartItem->id === $product->id;
-                            }) !== false)
-              <a href="{{route('cart.index')}}" class="btn btn-warning mb-3">Go to Cart</a>
-                 @else
+                @if(Cart::instance("cart")->content()->Where('id',$product->id)->count()>0)
+                    <a href="{{route('cart.index')}}" class="btn btn-warning mb-3">Go to Cart</a>
+                @else
                 <form name="addtocart-form" method="POST" action="{{route('cart.add')}}">
-        @csrf
-        <div class="product-single__addtocart">
-            <div class="qty-control position-relative">
-                <input type="number" name="quantity" value="1" min="1" class="qty-control__number text-center">
-                <div class="qty-control__reduce">-</div>
-                <div class="qty-control__increase">+</div>
-            </div><!-- .qty-control -->
-            <input type="hidden" name="id" value="{{$product->id}}" />
-            <input type="hidden" name="name" value="{{$product->name}}" />
-            <input type="hidden" name="price" value="{{$product->sale_price == '' ? $product->regular_price : $product->sale_price}}" />
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
-        </div>
-    </form>
-@endif
-
+                    @csrf
+                    <div class="product-single__addtocart">
+                        <div class="qty-control position-relative">
+                            <input type="number" name="quantity" value="1" min="1" class="qty-control__number text-center">
+                            <div class="qty-control__reduce">-</div>
+                            <div class="qty-control__increase">+</div>
+                        </div><!-- .qty-control -->
+                        <input type="hidden" name="id" value="{{$product->id}}" />
+                        <input type="hidden" name="name" value="{{$product->name}}" />
+                        <input type="hidden" name="price" value="{{$product->sale_price == '' ? $product->regular_price:$product->sale_price}}" />                        
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </div>
+                </form>
+                @endif
                 <div class="product-single__addtolinks">
                     <a href="#" class="menu-link menu-link_us-s add-to-wishlist"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <use href="#icon_heart" />
@@ -374,9 +371,9 @@
                     <div class="swiper-slide product-card">
                         <div class="pc__img-wrapper">
                             <a href="details.php">
-                                <img loading="lazy" src="{{asset('uploads/products')}}/{{$rproduct->image}}" width="330" height="400" alt="Cropped Faux leather Jacket" class="pc__img">
+                                <img loading="lazy" src="{{asset('storage/products')}}/{{$rproduct->image}}" width="330" height="400" alt="Cropped Faux leather Jacket" class="pc__img">
                                 @if(count(explode(",",$rproduct->images))>0)
-                                <img loading="lazy" src="{{asset('uploads/products')}}/{{trim(explode(",",$rproduct->images)[0])}}" width="330" height="400" alt="Cropped Faux leather Jacket" class="pc__img pc__img-second">
+                                <img loading="lazy" src="{{asset('storage/products')}}/{{trim(explode(",",$rproduct->images)[0])}}" width="330" height="400" alt="Cropped Faux leather Jacket" class="pc__img pc__img-second">
                                 @endif
                             </a>
                             <button class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart js-open-aside" data-aside="cartDrawer" title="Add To Cart">Add To Cart</button>

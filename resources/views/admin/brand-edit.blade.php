@@ -31,15 +31,15 @@
 
         <!-- new-category -->
         <div class="wg-box">
-            <form class="form-new-product form-style-1" action="{{ route('admin.brand.update') }}" method="POST" enctype="multipart/form-data">
-                @method('PUT')
+            <form action="{{ route('admin.product.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 <input type="hidden" name="id" value="{{ $brand->id }}"/>
                 <fieldset class="name">
                     <div class="body-title">Brand Name <span class="tf-color-1">*</span></div>
                     <input class="flex-grow" type="text" placeholder="Brand name" name="name" tabindex="0" value="{{$brand->name}}" aria-required="true" required="">
                 </fieldset>
-                @error('name') 
+                @error('name')
                     <span class="alert alert-danger text-center">{{ $message }}</span>
                 @enderror
 
@@ -47,18 +47,18 @@
                   <div class="body-title">Brand Slug <span class="tf-color-1">*</span></div>
                <input class="flex-grow" type="text" placeholder="Brand Slug" name="slug" tabindex="0" value="{{$brand->slug}}" aria-required="true" required="">
             </fieldset>
-          @error('slug') 
+          @error('slug')
           <span class="alert alert-danger text-center">{{ $message }}</span>
          @enderror
                 <fieldset>
                     <div class="body-title">Upload images <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow">
                     @if($brand->image)
-                        <div  class="item" id="imgpreview" style="display:none">                            
+                        <div  class="item" id="imgpreview" style="display:none">
                             <img src="{{asset('uploads/brands')}}/{{$brand->image}}" alt="">
                         </div>
                         @endif
-                       
+
                         <div id="upload-file" class="item up-load">
                             <label class="uploadfile" for="myFile">
                                 <span class="icon">
@@ -70,13 +70,12 @@
                         </div>
                     </div>
                 </fieldset>
-                @error('image') 
+                @error('image')
                     <span class="alert alert-danger text-center">{{ $message }}</span>
                 @enderror
 
                 <div class="bot">
-                    <button class="tf-button w208" type="submit">Save</button>
-                </div>
+                    <button type="submit">Update Product</button>                </div>
             </form>
         </div>
     </div>
@@ -98,7 +97,7 @@
         $("input[name='name']").on("change", function() {
     $("input[name='slug']").val(StringToSlug($(this).val()));
     });
- 
+
     });
 
     function StringToSlug(text) {

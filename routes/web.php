@@ -42,7 +42,8 @@ Route::post('/cart/store', [CartController::class, 'addToCart'])->name('cart.add
 
 Route::put('/cart/increase-qunatity/{rowId}',[CartController::class,'increase_item_quantity'])->name('cart.increase.qty');
 Route::put('/cart/reduce-qunatity/{rowId}',[CartController::class,'reduce_item_quantity'])->name('cart.reduce.qty');
-
+Route::delete('/cart/remove/{rowId}',[CartController::class,'remove_item_from_cart'])->name('cart.remove');
+Route::delete('/cart/clear',[CartController::class,'empty_cart'])->name('cart.empty');
 
 
 
@@ -72,8 +73,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function(){
         Route::get('/admin/product/add',[ProductsController::class,'product_add'])->name('admin.product.add');
         Route::post('/admin/product/store',[ProductsController::class,'product_store'])->name('admin.product.store');
         Route::get('/admin/product/{id}/edit',[ProductsController::class,'product_edit'])->name('admin.product.edit');
-        Route::put('/admin/product/update',[ProductsController::class,'product_update'])->name('admin.product.update');
-        Route::delete('/admin/product/{id}/delete',[ProductsController::class,'product_delete'])->name('admin.product.delete');
+        Route::put('/admin/products/{id}', [ProductsController::class, 'product_update'])->name('admin.product.update');
+                Route::delete('/admin/product/{id}/delete',[ProductsController::class,'product_delete'])->name('admin.product.delete');
         //cart
 
 
